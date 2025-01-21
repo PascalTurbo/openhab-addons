@@ -15,11 +15,12 @@ package org.openhab.binding.ochsnerweb2com.internal;
 import static org.openhab.binding.ochsnerweb2com.internal.OchsnerWeb2ComBindingConstants.CHANNEL_1;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jetty.client.HttpClient;
+import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ChannelUID;
-import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.thing.ThingStatusDetail;
-import org.openhab.core.thing.binding.BaseThingHandler;
+import org.openhab.core.thing.binding.BaseBridgeHandler;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
 import org.slf4j.Logger;
@@ -32,16 +33,16 @@ import org.slf4j.LoggerFactory;
  * @author Christian Becker - Initial contribution
  */
 @NonNullByDefault
-public class OchsnerWeb2ComHandler extends BaseThingHandler {
+public class OchsnerWeb2ComBridgeHandler extends BaseBridgeHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(OchsnerWeb2ComHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(OchsnerWeb2ComBridgeHandler.class);
 
     private OchsnerWeb2ComConnection connection;
 
-    public OchsnerWeb2ComHandler(Thing thing) {
-        super(thing);
+    public OchsnerWeb2ComBridgeHandler(Bridge bridge, HttpClient httpClient) {
+        super(bridge);
 
-        this.connection = new OchsnerWeb2ComConnection(this);
+        this.connection = new OchsnerWeb2ComConnection(this, httpClient);
     }
 
     @Override

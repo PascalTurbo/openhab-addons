@@ -14,17 +14,23 @@ package org.openhab.binding.ochsnerweb2com.internal;
 
 import static org.openhab.binding.ochsnerweb2com.internal.OchsnerWeb2ComBindingConstants.THING_TYPE_OCHSNERGENERIC;
 import static org.openhab.binding.ochsnerweb2com.internal.OchsnerWeb2ComBindingConstants.THING_TYPE_OCHSNERHEATERUNIT;
+import static org.openhab.binding.ochsnerweb2com.internal.OchsnerWeb2ComBindingConstants.THING_TYPE_WEB2COM;
 
 import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.jetty.client.HttpClient;
+import org.openhab.core.io.net.http.HttpClientFactory;
+import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingTypeUID;
 import org.openhab.core.thing.binding.BaseThingHandlerFactory;
 import org.openhab.core.thing.binding.ThingHandler;
 import org.openhab.core.thing.binding.ThingHandlerFactory;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * The {@link OchsnerWeb2ComHandlerFactory} is responsible for creating things and thing
@@ -36,8 +42,15 @@ import org.osgi.service.component.annotations.Component;
 @Component(configurationPid = "binding.ochsnerweb2com", service = ThingHandlerFactory.class)
 public class OchsnerWeb2ComHandlerFactory extends BaseThingHandlerFactory {
 
-    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_OCHSNERHEATERUNIT,
-            THING_TYPE_OCHSNERGENERIC);
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_WEB2COM,
+            THING_TYPE_OCHSNERHEATERUNIT, THING_TYPE_OCHSNERGENERIC);
+
+    private final HttpClient httpClient;
+
+    @Activate
+    public OchsnerWeb2ComHandlerFactory(@Reference HttpClientFactory httpClientFactory) {
+        this.httpClient = httpClientFactory.getCommonHttpClient();
+    }
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -48,8 +61,8 @@ public class OchsnerWeb2ComHandlerFactory extends BaseThingHandlerFactory {
     protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (THING_TYPE_OCHSNERHEATERUNIT.equals(thingTypeUID)) {
-            return new OchsnerWeb2ComHandler(thing);
+        if (THING_TYPE_WEB2COM.equals(thingTypeUID)) {
+            return new OchsnerWeb2ComBridgeHandler((Bridge) thing, httpClient);
         }
 
         return null;

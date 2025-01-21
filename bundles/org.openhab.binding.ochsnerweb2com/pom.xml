@@ -13,12 +13,4 @@
   <artifactId>org.openhab.binding.ochsnerweb2com</artifactId>
 
   <name>openHAB Add-ons :: Bundles :: OchsnerWeb2Com Binding</name>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-      <version>4.5.13</version>
-    </dependency>
-  </dependencies>
 </project>

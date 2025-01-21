@@ -27,6 +27,7 @@ public class OchsnerWeb2ComBindingConstants {
     private static final String BINDING_ID = "ochsnerweb2com";
 
     // List of all Thing Type UIDs
+    public static final ThingTypeUID THING_TYPE_WEB2COM = new ThingTypeUID(BINDING_ID, "web2com");
     public static final ThingTypeUID THING_TYPE_OCHSNERHEATERUNIT = new ThingTypeUID(BINDING_ID, "ochsner-heater-unit");
     public static final ThingTypeUID THING_TYPE_OCHSNERGENERIC = new ThingTypeUID(BINDING_ID, "ochsner-generic");
 

@@ -12,13 +12,13 @@
  */
 package org.openhab.binding.ochsnerweb2com.internal;
 
-import static org.openhab.binding.ochsnerweb2com.internal.OchsnerWeb2ComBindingConstants.*;
+import static org.openhab.binding.ochsnerweb2com.internal.OchsnerWeb2ComBindingConstants.CHANNEL_1;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
+import org.openhab.core.thing.ThingStatusDetail;
 import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
@@ -36,10 +36,12 @@ public class OchsnerWeb2ComHandler extends BaseThingHandler {
 
     private final Logger logger = LoggerFactory.getLogger(OchsnerWeb2ComHandler.class);
 
-    private @Nullable OchsnerWeb2ComConfiguration config;
+    private OchsnerWeb2ComConnection connection;
 
     public OchsnerWeb2ComHandler(Thing thing) {
         super(thing);
+
+        this.connection = new OchsnerWeb2ComConnection(this);
     }
 
     @Override
@@ -60,7 +62,19 @@ public class OchsnerWeb2ComHandler extends BaseThingHandler {
 
     @Override
     public void initialize() {
-        config = getConfigAs(OchsnerWeb2ComConfiguration.class);
+        logger.debug("Initializing Web2Com handler.");
+        OchsnerWeb2ComConfiguration config = getConfigAs(OchsnerWeb2ComConfiguration.class);
+
+        if (config.hostname == null || config.hostname.isEmpty()) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "No hostname configured");
+            return;
+        }
+        ;
+
+        if (config.username == null || config.username.isEmpty()) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "No username configured");
+            return;
+        }
 
         // TODO: Initialize the handler.
         // The framework requires you to return from this method quickly, i.e. any network access must be done in
@@ -78,13 +92,7 @@ public class OchsnerWeb2ComHandler extends BaseThingHandler {
 
         // Example for background initialization:
         scheduler.execute(() -> {
-            boolean thingReachable = true; // <background task with long running initialization here>
-            // when done do:
-            if (thingReachable) {
-                updateStatus(ThingStatus.ONLINE);
-            } else {
-                updateStatus(ThingStatus.OFFLINE);
-            }
+            connection.testConnection();
         });
 
         // These logging types should be primarily used by bindings
@@ -100,5 +108,13 @@ public class OchsnerWeb2ComHandler extends BaseThingHandler {
         // Add a description to give user information to understand why thing does not work as expected. E.g.
         // updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
         // "Can not access device as username and/or password are invalid");
+    }
+
+    public OchsnerWeb2ComConfiguration getConfiguration() {
+        return getConfigAs(OchsnerWeb2ComConfiguration.class);
+    }
+
+    public void setStatusInfo(ThingStatus status, ThingStatusDetail statusDetail, String description) {
+        updateStatus(status, statusDetail, description);
     }
 }

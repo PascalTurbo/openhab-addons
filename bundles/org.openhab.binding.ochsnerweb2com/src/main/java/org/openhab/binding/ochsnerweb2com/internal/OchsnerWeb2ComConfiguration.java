@@ -22,10 +22,8 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 @NonNullByDefault
 public class OchsnerWeb2ComConfiguration {
 
-    /**
-     * Sample configuration parameters. Replace with your own.
-     */
     public String hostname = "";
+    public String username = "";
     public String password = "";
-    public int refreshInterval = 600;
+    public int refreshInterval = 60;
 }

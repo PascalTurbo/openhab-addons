@@ -1,5 +1,15 @@
 # OchsnerWeb2Com Binding
 
+Bridge: Communication connection to talk with the heatpump
+Thing: The heatpump itself (OID 1/2), also all single components of the Heatpump ( Service Report, Waermepumpe, Zusatzheizung, Warmwasserkreis, ...)
+Channel: All attributes of the single components like Energy Consumption, Temperatures, ...
+
+
+
+
+
+
+
 _Give some details about what this binding is meant for - a protocol, system, specific device._
 
 _If possible, provide some resources like pictures (only PNG is supported currently), a video, etc. to give an impression of what can be done with this binding._

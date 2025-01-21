@@ -12,7 +12,8 @@
  */
 package org.openhab.binding.ochsnerweb2com.internal;
 
-import static org.openhab.binding.ochsnerweb2com.internal.OchsnerWeb2ComBindingConstants.*;
+import static org.openhab.binding.ochsnerweb2com.internal.OchsnerWeb2ComBindingConstants.THING_TYPE_OCHSNERGENERIC;
+import static org.openhab.binding.ochsnerweb2com.internal.OchsnerWeb2ComBindingConstants.THING_TYPE_OCHSNERHEATERUNIT;
 
 import java.util.Set;
 
@@ -35,7 +36,8 @@ import org.osgi.service.component.annotations.Component;
 @Component(configurationPid = "binding.ochsnerweb2com", service = ThingHandlerFactory.class)
 public class OchsnerWeb2ComHandlerFactory extends BaseThingHandlerFactory {
 
-    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_SAMPLE);
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_OCHSNERHEATERUNIT,
+            THING_TYPE_OCHSNERGENERIC);
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -46,7 +48,7 @@ public class OchsnerWeb2ComHandlerFactory extends BaseThingHandlerFactory {
     protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (THING_TYPE_SAMPLE.equals(thingTypeUID)) {
+        if (THING_TYPE_OCHSNERHEATERUNIT.equals(thingTypeUID)) {
             return new OchsnerWeb2ComHandler(thing);
         }
 

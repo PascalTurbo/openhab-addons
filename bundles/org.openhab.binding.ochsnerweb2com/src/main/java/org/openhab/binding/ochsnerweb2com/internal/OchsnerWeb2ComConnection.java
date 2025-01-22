@@ -2,8 +2,12 @@ package org.openhab.binding.ochsnerweb2com.internal;
 
 import java.io.StringWriter;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
 import org.eclipse.jetty.client.HttpClient;
@@ -29,7 +33,7 @@ public class OchsnerWeb2ComConnection {
 
     private final HttpClient httpClient;
 
-    private OchsnerWeb2ComConfiguration configuration;
+    private final OchsnerWeb2ComConfiguration configuration;
 
     public OchsnerWeb2ComConnection(OchsnerWeb2ComBridgeHandler handler, HttpClient httpClient) {
         this.configuration = handler.getConfiguration();
@@ -37,16 +41,18 @@ public class OchsnerWeb2ComConnection {
         this.httpClient = httpClient;
     }
 
-    // ToDo: Refactor an make it a generic method
-    private static String buildRequestBody() {
+    private static Envelope buildRequestEnvelope(String oid, Integer startIndex, Integer count) {
+        Reference reference = new Reference(oid, null);
 
-        Reference reference = new Reference("/1", null);
-
-        DataPointRequest dataPointRequest = new DataPointRequest(reference, 0, -1);
+        DataPointRequest dataPointRequest = new DataPointRequest(reference, startIndex, count);
 
         Body requestBody = new Body(dataPointRequest);
 
-        Envelope requestEnvelope = new Envelope(requestBody);
+        return (new Envelope(requestBody));
+    }
+
+    private static String buildRequestBody(String oid, Integer startIndex, Integer count) {
+        Envelope envelope = buildRequestEnvelope(oid, startIndex, count);
 
         String request = "";
 
@@ -57,7 +63,7 @@ public class OchsnerWeb2ComConnection {
             requestMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
             StringWriter stringWriter = new StringWriter();
-            requestMarshaller.marshal(requestEnvelope, stringWriter);
+            requestMarshaller.marshal(envelope, stringWriter);
 
             request = stringWriter.toString();
 
@@ -66,9 +72,9 @@ public class OchsnerWeb2ComConnection {
 
             logger.debug("Request XML: {request}");
 
-        } catch (Exception e) {
-            logger.warn("Error while creating xml: {e.getMessage()}");
-            e.printStackTrace();
+        } catch (JAXBException e) {
+            logger.warn("Error while creating request body xml: {}", e.getMessage());
+            logger.debug("Creating request body xml failed with JAXBException", e);
         }
 
         return request;
@@ -79,13 +85,11 @@ public class OchsnerWeb2ComConnection {
     // else returns false
     public void testConnection() {
 
-        // CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        // credentialsProvider.setCredentials(AuthScope.ANY,
-        // new UsernamePasswordCredentials(configuration.username, configuration.password));
-
+        // There is no known local tls encrypted api endpoint
+        // ToDo: Support configuration of port and protocol as username.ochsner-web.com:444 is also a valid endpoint
         String url = "http://" + configuration.hostname + "/ws";
 
-        String request = buildRequestBody();
+        String request = buildRequestBody("/1", 0, -1);
 
         AuthenticationStore authenticationStore = httpClient.getAuthenticationStore();
 
@@ -101,44 +105,19 @@ public class OchsnerWeb2ComConnection {
             if (response.getStatus() == 401) {
                 logger.warn("Error while testing connection: Authentication Error.");
                 handler.setStatusInfo(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
-                        "Invalid username or password");
+                        "Authentication failed. Check username and password.");
             }
 
             if (response.getStatus() == 200) {
                 logger.debug("Successfully established connection.");
-                handler.setStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE, "");
+                handler.setStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE, "Successfully established connection.");
             }
 
-        } catch (Exception e) {
-            logger.debug(e.getMessage());
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            logger.error(e.getMessage());
+            logger.debug("Exception while connecting to endpoint '" + url + "'" ,e);
+        } catch (URISyntaxException e) {
+            logger.error("Error while creating URI: {}", e.getMessage());
         }
-
-        // ContentResponse response = httpClient.POST(url)
-
-        // try (CloseableHttpClient httpClient = HttpClients.custom().setDefaultCredentialsProvider(credentialsProvider)
-        // .build()) {
-
-        // HttpContext localContext = new BasicHttpContext();
-        // HttpGet httpGet = new HttpGet(url);
-
-        // HttpPost httpPost = new HttpPost(url);
-        // // TODO: Ugly hack! replace ns3 should not be the solution
-        // httpPost.setEntity(new StringEntity(request.replace("ns3:", ""), ContentType.APPLICATION_XML));
-        // httpPost.setHeader("Content-Type", "text/xml; charset=utf-8");
-        // httpPost.setHeader("SOAPAction", "http://ws01.lom.ch/soap/getDP");
-
-        // CloseableHttpResponse response = httpClient.execute(httpPost, localContext);
-
-        // if (response.getStatusLine().getStatusCode() == 401) {
-        // logger.warn("Error while testing connection: Authentication Error.");
-        // logger.debug(response.getStatusLine().toString());
-        // handler.setStatusInfo(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
-        // "Invalid username or password");
-        // }
-        // } catch (Exception e) {
-        // logger.warn("Error while testing connection: {e.getMessage()}");
-        // logger.debug(e.getMessage());
-        // handler.setStatusInfo(ThingStatus.UNKNOWN, ThingStatusDetail.NONE, "Unknown error occured");
-        // }
     }
 }

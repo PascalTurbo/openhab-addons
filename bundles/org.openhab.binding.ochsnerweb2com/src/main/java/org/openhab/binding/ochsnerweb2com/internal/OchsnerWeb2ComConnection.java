@@ -110,12 +110,13 @@ public class OchsnerWeb2ComConnection {
 
             if (response.getStatus() == 200) {
                 logger.debug("Successfully established connection.");
-                handler.setStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE, "Successfully established connection.");
+                handler.setStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE,
+                        "Successfully established connection.");
             }
 
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             logger.error(e.getMessage());
-            logger.debug("Exception while connecting to endpoint '" + url + "'" ,e);
+            logger.debug("Exception while connecting to endpoint '" + url + "'", e);
         } catch (URISyntaxException e) {
             logger.error("Error while creating URI: {}", e.getMessage());
         }

@@ -1,6 +1,7 @@
 package org.openhab.binding.ochsnerweb2com.internal.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -13,5 +14,12 @@ public class DataPointResponse implements Serializable {
     private Reference reference;
 
     @XmlElement(name = "dpCfg")
-    private DataPointConfiguration[] dataPointConfigurations;
+    private ArrayList<DataPointConfiguration> dataPointConfigurations;
+
+    /**
+     * @return the dataPointConfigurations
+     */
+    public ArrayList<DataPointConfiguration> getDataPointConfigurations() {
+        return dataPointConfigurations;
+    }
 }

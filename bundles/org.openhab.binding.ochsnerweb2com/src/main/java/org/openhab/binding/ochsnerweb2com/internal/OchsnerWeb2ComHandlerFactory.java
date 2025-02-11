@@ -13,7 +13,6 @@
 package org.openhab.binding.ochsnerweb2com.internal;
 
 import static org.openhab.binding.ochsnerweb2com.internal.OchsnerWeb2ComBindingConstants.THING_TYPE_OCHSNERGENERIC;
-import static org.openhab.binding.ochsnerweb2com.internal.OchsnerWeb2ComBindingConstants.THING_TYPE_OCHSNERHEATERUNIT;
 import static org.openhab.binding.ochsnerweb2com.internal.OchsnerWeb2ComBindingConstants.THING_TYPE_WEB2COM;
 
 import java.util.Set;
@@ -43,7 +42,7 @@ import org.osgi.service.component.annotations.Reference;
 public class OchsnerWeb2ComHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_WEB2COM,
-            THING_TYPE_OCHSNERHEATERUNIT, THING_TYPE_OCHSNERGENERIC);
+            THING_TYPE_OCHSNERGENERIC);
 
     private final HttpClient httpClient;
 
@@ -63,6 +62,10 @@ public class OchsnerWeb2ComHandlerFactory extends BaseThingHandlerFactory {
 
         if (THING_TYPE_WEB2COM.equals(thingTypeUID)) {
             return new OchsnerWeb2ComBridgeHandler((Bridge) thing, httpClient);
+        }
+
+        if (THING_TYPE_OCHSNERGENERIC.equals(thingTypeUID)) {
+            return new OchsnerWeb2ComThingHandler(thing);
         }
 
         return null;

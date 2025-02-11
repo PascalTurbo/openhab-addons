@@ -5,6 +5,9 @@ Thing: The heatpump itself (OID 1/2), also all single components of the Heatpump
 Channel: All attributes of the single components like Energy Consumption, Temperatures, ...
 
 
+ToDos:
+
+- Add thing property "name" (Already set in thing-types.xml) and set them while initializing the binding
 
 
 

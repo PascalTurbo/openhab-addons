@@ -12,8 +12,6 @@
  */
 package org.openhab.binding.ochsnerweb2com.internal;
 
-import static org.openhab.binding.ochsnerweb2com.internal.OchsnerWeb2ComBindingConstants.CHANNEL_1;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jetty.client.HttpClient;
 import org.openhab.core.thing.Bridge;
@@ -22,7 +20,6 @@ import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.thing.ThingStatusDetail;
 import org.openhab.core.thing.binding.BaseBridgeHandler;
 import org.openhab.core.types.Command;
-import org.openhab.core.types.RefreshType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +34,7 @@ public class OchsnerWeb2ComBridgeHandler extends BaseBridgeHandler {
 
     private final Logger logger = LoggerFactory.getLogger(OchsnerWeb2ComBridgeHandler.class);
 
-    private OchsnerWeb2ComConnection connection;
+    private final OchsnerWeb2ComConnection connection;
 
     public OchsnerWeb2ComBridgeHandler(Bridge bridge, HttpClient httpClient) {
         super(bridge);
@@ -45,20 +42,24 @@ public class OchsnerWeb2ComBridgeHandler extends BaseBridgeHandler {
         this.connection = new OchsnerWeb2ComConnection(this, httpClient);
     }
 
+    public OchsnerWeb2ComConnection getConnection() {
+        return connection;
+    }
+
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        if (CHANNEL_1.equals(channelUID.getId())) {
-            if (command instanceof RefreshType) {
-                // TODO: handle data refresh
-            }
+        // if (CHANNEL_1.equals(channelUID.getId())) {
+        // if (command instanceof RefreshType) {
+        // // TODO: handle data refresh
+        // }
 
-            // TODO: handle command
+        // // TODO: handle command
 
-            // Note: if communication with thing fails for some reason,
-            // indicate that by setting the status with detail information:
-            // updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
-            // "Could not control device at IP address x.x.x.x");
-        }
+        // // Note: if communication with thing fails for some reason,
+        // // indicate that by setting the status with detail information:
+        // // updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+        // // "Could not control device at IP address x.x.x.x");
+        // }
     }
 
     @Override
@@ -93,7 +94,8 @@ public class OchsnerWeb2ComBridgeHandler extends BaseBridgeHandler {
 
         // Example for background initialization:
         scheduler.execute(() -> {
-            connection.testConnection();
+            // TODO Bridge should hold its oid as a configuration parameter
+            connection.testBridgeConnection("/1");
         });
 
         // These logging types should be primarily used by bindings

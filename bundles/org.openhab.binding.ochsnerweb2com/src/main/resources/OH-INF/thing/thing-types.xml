@@ -56,9 +56,9 @@
 		</properties>
 
 		<config-description>
-			<parameter name="oid" type="integer" required="true">
+			<parameter name="oid" type="text" required="true">
 				<label>OID</label>
-				<description>The oid of the device.</description>
+				<description>The oid of the device like presented in the web2com view. /1/2/1 f.e.</description>
 			</parameter>
 		</config-description>
 

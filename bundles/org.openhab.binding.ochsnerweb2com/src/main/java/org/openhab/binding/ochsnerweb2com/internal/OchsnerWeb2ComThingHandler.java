@@ -25,6 +25,8 @@ public class OchsnerWeb2ComThingHandler extends BaseThingHandler {
 
     private final Logger logger = LoggerFactory.getLogger(OchsnerWeb2ComBridgeHandler.class);
 
+    private OchsnerWeb2ComThingConfiguration configuration;
+
     private ScheduledFuture<?> pollChannelStatusSchedule;
 
     public OchsnerWeb2ComThingHandler(Thing thing) {
@@ -35,22 +37,23 @@ public class OchsnerWeb2ComThingHandler extends BaseThingHandler {
     public void initialize() {
         logger.debug("Initializing OchsnerWeb2Com Thing Handler");
 
+        configuration = getConfigAs(OchsnerWeb2ComThingConfiguration.class);
+
         getBridgeHandler();
 
         updateStatus(ThingStatus.UNKNOWN);
 
         // Example for background initialization:
         scheduler.execute(() -> {
-            // TODO Bridge should hold its oid as a configuration parameter
             // TODO Maybe set status to configuring? and update to online after searching for channels is completed
             // ToDO Replace hard coded oids with configuration parameters
-            getBridgeHandler().getConnection().testConnection("/1/2/1", this);
+            getBridgeHandler().getConnection().testConnection(configuration.oid, this);
 
-            getBridgeHandler().getConnection().getDataPointResponse("/1/2/1");
+            getBridgeHandler().getConnection().getDataPointResponse(configuration.oid);
 
             // TODO Think about a better name
             Map<String, DataPointConfiguration> channelData = getBridgeHandler().getConnection()
-                    .getChannelConfigurations("/1/2/1");
+                    .getChannelConfigurations(configuration.oid);
 
             // TODO only updateThing once
             for (Map.Entry<String, DataPointConfiguration> channelEntry : channelData.entrySet()) {

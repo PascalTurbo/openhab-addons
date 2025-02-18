@@ -14,6 +14,7 @@ package org.openhab.binding.ochsnerweb2com.internal;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jetty.client.HttpClient;
+import org.openhab.binding.ochsnerweb2com.internal.model.metadata.VariableIdentificators;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.ThingStatus;
@@ -36,10 +37,15 @@ public class OchsnerWeb2ComBridgeHandler extends BaseBridgeHandler {
 
     private final OchsnerWeb2ComConnection connection;
 
+    private VariableIdentificators variableIdentificators;
+
     public OchsnerWeb2ComBridgeHandler(Bridge bridge, HttpClient httpClient) {
         super(bridge);
 
         this.connection = new OchsnerWeb2ComConnection(this, httpClient);
+
+        // TODO: Remove this hack after clarifying how to handle async background initialization
+        this.variableIdentificators = new VariableIdentificators();
     }
 
     public OchsnerWeb2ComConnection getConnection() {
@@ -71,7 +77,6 @@ public class OchsnerWeb2ComBridgeHandler extends BaseBridgeHandler {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "No hostname configured");
             return;
         }
-        ;
 
         if (config.username == null || config.username.isEmpty()) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "No username configured");
@@ -93,10 +98,14 @@ public class OchsnerWeb2ComBridgeHandler extends BaseBridgeHandler {
         updateStatus(ThingStatus.UNKNOWN);
 
         // Example for background initialization:
-        scheduler.execute(() -> {
-            // TODO Bridge should hold its oid as a configuration parameter
-            connection.testBridgeConnection("/1");
-        });
+        // TODO: Correct background initialization
+        // scheduler.execute(() -> {
+        // TODO Bridge should hold its oid as a configuration parameter
+        connection.testBridgeConnection("/1");
+
+        // TODO Update if language changes
+        variableIdentificators = connection.getVariableIdentificators();
+        // });
 
         // These logging types should be primarily used by bindings
         // logger.trace("Example trace message");
@@ -119,5 +128,17 @@ public class OchsnerWeb2ComBridgeHandler extends BaseBridgeHandler {
 
     public void setStatusInfo(ThingStatus status, ThingStatusDetail statusDetail, String description) {
         updateStatus(status, statusDetail, description);
+    }
+
+    // TODO: variableIdentificatores are initialized in Background.
+    // but they are not nullable. How to check, if they are set?
+    public VariableIdentificators getVariableIdentificators() {
+        return variableIdentificators;
+    }
+
+    @Override
+    public void dispose() {
+        this.connection.dispose();
+        super.dispose();
     }
 }

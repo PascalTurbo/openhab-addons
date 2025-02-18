@@ -65,9 +65,17 @@
 	</thing-type>
 
 	<!-- Sample Channel Type -->
-	<channel-type id="testi">
-		<label>Example Temperature</label><!-- Use uppercase words, except prepositions. 2-3 words, max 25 chars -->
-		<description>Sample channel for OchsnerWeb2Com Binding</description>
+	<channel-type id="string">
+		<item-type>String</item-type>
+		<label>String</label>
+		<description>A channel to manage generic string values</description>
+		<state readOnly="true"></state>
+	</channel-type>
+
+	<channel-type id="number">
+		<item-type>Number</item-type>
+		<label>Number</label>
+		<description>A channel to manage generic numeric values</description>
 		<state readOnly="true"></state>
 	</channel-type>
 </thing:thing-descriptions>

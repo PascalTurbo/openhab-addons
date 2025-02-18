@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created by GenerateEbenenTextsInXML.php -->
+<EbenenTexte lang="de">
+	<fcttyp id="0">
+		<ebene id="100">Einstellungen</ebene>
+		<ebene id="106">Einstellungen</ebene>
+		<ebene id="116">Relaistest</ebene>
+		<ebene id="120">Betriebsdaten</ebene>
+		<ebene id="156">Konfiguration</ebene>
+	</fcttyp>
+	<fcttyp id="1">
+		<ebene id="99">Einstellungen</ebene>
+		<ebene id="103">Einstellungen</ebene>
+		<ebene id="106">Einstellungen</ebene>
+		<ebene id="107">Betriebswahl</ebene>
+		<ebene id="108">Heizkurve</ebene>
+		<ebene id="109">Kühlkurve</ebene>
+		<ebene id="117">Relaistest</ebene>
+		<ebene id="119">Betriebsdaten</ebene>
+		<ebene id="156">Konfiguration</ebene>
+	</fcttyp>
+	<fcttyp id="2">
+		<ebene id="101">Einstellungen</ebene>
+		<ebene id="106">Einstellungen</ebene>
+		<ebene id="107">Betriebswahl</ebene>
+		<ebene id="117">Relaistest</ebene>
+		<ebene id="118">Relaistest</ebene>
+		<ebene id="121">Betriebsdaten</ebene>
+		<ebene id="127">Statistik</ebene>
+		<ebene id="156">Konfiguration</ebene>
+	</fcttyp>
+	<fcttyp id="3">
+		<ebene id="102">Einstellungen</ebene>
+		<ebene id="107">Einstellungen</ebene>
+		<ebene id="108">Betriebswahl</ebene>
+		<ebene id="122">Betriebsdaten</ebene>
+		<ebene id="156">Konfiguration</ebene>
+	</fcttyp>
+	<fcttyp id="4">
+		<ebene id="106">Einstellungen</ebene>
+		<ebene id="107">Einstellungen Wärmeerzeuger 1</ebene>
+		<ebene id="108">Einstellungen Wärmeerzeuger 2</ebene>
+		<ebene id="109">Einstellungen Wärmeerzeuger 3</ebene>
+		<ebene id="110">Einstellungen Wärmeerzeuger 4</ebene>
+		<ebene id="111">Einstellungen Wärmeerzeuger 5</ebene>
+		<ebene id="112">Einstellungen Wärmeerzeuger 6</ebene>
+		<ebene id="113">Einstellungen Wärmeerzeuger 7</ebene>
+		<ebene id="114">Einstellungen Wärmeerzeuger 8</ebene>
+		<ebene id="127">Betriebsdaten Wärmeerzeuger 1</ebene>
+		<ebene id="128">Betriebsdaten Wärmeerzeuger 2</ebene>
+		<ebene id="129">Betriebsdaten Wärmeerzeuger 3</ebene>
+		<ebene id="130">Betriebsdaten Wärmeerzeuger 4</ebene>
+		<ebene id="131">Betriebsdaten Wärmeerzeuger 5</ebene>
+		<ebene id="132">Betriebsdaten Wärmeerzeuger 6</ebene>
+		<ebene id="133">Betriebsdaten Wärmeerzeuger 7</ebene>
+		<ebene id="134">Betriebsdaten Wärmeerzeuger 8</ebene>
+		<ebene id="156">Konfiguration</ebene>
+	</fcttyp>
+	<fcttyp id="7">
+		<ebene id="97">Betriebswahl</ebene>
+		<ebene id="98">Einstellungen</ebene>
+		<ebene id="99">Einstellungen</ebene>
+		<ebene id="105">Einstellungen</ebene>
+		<ebene id="106">Einstellungen</ebene>
+		<ebene id="107">Betriebswahl</ebene>
+		<ebene id="123">Relaistest</ebene>
+		<ebene id="125">Betriebsdaten</ebene>
+		<ebene id="127">Statistik</ebene>
+		<ebene id="156">Konfiguration</ebene>
+	</fcttyp>
+	<fcttyp id="8">
+		<ebene id="106">Einstellungen</ebene>
+		<ebene id="107">Einstellungen</ebene>
+		<ebene id="108">Betriebswahl</ebene>
+		<ebene id="124">Relaistest</ebene>
+		<ebene id="126">Betriebsdaten</ebene>
+		<ebene id="127">Statistik</ebene>
+		<ebene id="156">Konfiguration</ebene>
+	</fcttyp>
+</EbenenTexte>

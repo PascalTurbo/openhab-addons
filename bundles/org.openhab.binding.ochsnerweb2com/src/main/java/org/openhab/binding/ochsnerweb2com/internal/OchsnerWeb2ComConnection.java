@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import javax.measure.Unit;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -28,6 +27,7 @@ import org.openhab.binding.ochsnerweb2com.internal.model.DataPointRequest;
 import org.openhab.binding.ochsnerweb2com.internal.model.DataPointResponse;
 import org.openhab.binding.ochsnerweb2com.internal.model.Envelope;
 import org.openhab.binding.ochsnerweb2com.internal.model.Reference;
+import org.openhab.binding.ochsnerweb2com.internal.model.metadata.VariableIdentificators;
 import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.thing.ThingStatusDetail;
 import org.slf4j.Logger;
@@ -43,15 +43,34 @@ public class OchsnerWeb2ComConnection {
 
     private final OchsnerWeb2ComConfiguration configuration;
 
+    private DigestAuthentication authentication;
+
     private AuthenticationStore authenticationStore;
 
     public OchsnerWeb2ComConnection(OchsnerWeb2ComBridgeHandler bridgeHandler, HttpClient httpClient) {
         this.configuration = bridgeHandler.getConfiguration();
         this.bridgeHandler = bridgeHandler;
-        this.httpClient = httpClient;
+        // TODO: Disabled for testing. Created a local httpClient instead
+        // this.httpClient = httpClient;
 
-        // TODO Remove - only for debugging
-        this.authenticationStore = httpClient.getAuthenticationStore();
+        this.httpClient = new HttpClient();
+        try {
+            this.httpClient.start();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            logger.error("Error while starting httpClient: {}", e.getMessage());
+        }
+
+        logger.debug("Initialize OchsnerWeb2ComBridgeHandler");
+
+        // TODO Test if this works
+        String url = "http://" + configuration.hostname + "/ws";
+
+        try {
+            setAuthentication(new URI(url));
+        } catch (URISyntaxException e) {
+            logger.error("Error while creating URI: {}", e.getMessage());
+        }
     }
 
     private static Envelope buildRequestEnvelope(String oid, Integer startIndex, Integer count) {
@@ -93,22 +112,21 @@ public class OchsnerWeb2ComConnection {
         return request;
     }
 
-    // TODO RE-Authenticate of configuration changes
+    // TODO RE-Authenticate if configuration changes
     private void setAuthentication(URI uri) {
         String realm = "RC7000";
 
-        // Authentication authentication = authenticationStore.findAuthentication("Digest", uri, realm);
+        if (authenticationStore == null) {
+            authenticationStore = httpClient.getAuthenticationStore();
+        }
 
-        // while (authentication != null) {
-        // authenticationStore.removeAuthentication(authentication);
-        // logger.info("Authentication removed.");
+        if (authentication != null) {
+            authenticationStore.removeAuthentication(authentication);
+        }
 
-        // authentication = authenticationStore.findAuthentication("Digest", uri, realm);
-        // }
+        authentication = new DigestAuthentication(uri, realm, configuration.username, configuration.password);
 
-        // AuthenticationStore authenticationStore = httpClient.getAuthenticationStore();
-        authenticationStore.addAuthentication(
-                new DigestAuthentication(uri, realm, configuration.username, configuration.password));
+        authenticationStore.addAuthentication(authentication);
     }
 
     // Test the connection with the configured connection parameters
@@ -122,11 +140,11 @@ public class OchsnerWeb2ComConnection {
 
         String request = buildRequestBody(oid, 0, -1);
 
-        try {
-            setAuthentication(new URI(url));
-        } catch (URISyntaxException e) {
-            logger.error("Error while creating URI: {}", e.getMessage());
-        }
+        // try {
+        // setAuthentication(new URI(url));
+        // } catch (URISyntaxException e) {
+        // logger.error("Error while creating URI: {}", e.getMessage());
+        // }
 
         try {
             ContentResponse response = httpClient.POST(url).header(HttpHeader.CONTENT_TYPE, "text/xml; charset=utf-8")
@@ -163,11 +181,11 @@ public class OchsnerWeb2ComConnection {
 
         String request = buildRequestBody(oid, 0, -1);
 
-        try {
-            setAuthentication(new URI(url));
-        } catch (URISyntaxException e) {
-            logger.error("Error while creating URI: {}", e.getMessage());
-        }
+        // try {
+        // setAuthentication(new URI(url));
+        // } catch (URISyntaxException e) {
+        // logger.error("Error while creating URI: {}", e.getMessage());
+        // }
 
         try {
             ContentResponse response = httpClient.POST(url).header(HttpHeader.CONTENT_TYPE, "text/xml; charset=utf-8")
@@ -197,11 +215,11 @@ public class OchsnerWeb2ComConnection {
 
         String request = buildRequestBody(oid, 0, -1);
 
-        try {
-            setAuthentication(new URI(url));
-        } catch (URISyntaxException e) {
-            logger.error("Error while creating URI: {}", e.getMessage());
-        }
+        // try {
+        // setAuthentication(new URI(url));
+        // } catch (URISyntaxException e) {
+        // logger.error("Error while creating URI: {}", e.getMessage());
+        // }
 
         try {
             ContentResponse response = httpClient.POST(url).header(HttpHeader.CONTENT_TYPE, "text/xml; charset=utf-8")
@@ -240,26 +258,73 @@ public class OchsnerWeb2ComConnection {
     }
 
     // TODO Think of a better name
-    public Map<String, Unit<?>> getChannelIDs(String oid) {
+    /*
+     * Returns a mapping of all oids to their configurations for a given base oid
+     * TODO: Think about if it would be better to rebuild the complete hirarchie
+     * as one single object instead of a Map that rebuilds the structure in a way
+     */
+    public Map<String, DataPointConfiguration> getChannelConfigurations(String oid) {
         DataPointResponse dataPointResponse = getDataPointResponse(oid);
 
-        Map<String, Unit<?>> channelIds = new HashMap<>();
+        Map<String, DataPointConfiguration> channelConfigurations = new HashMap<>();
 
         if (dataPointResponse == null)
-            return channelIds;
+            return channelConfigurations;
 
         ArrayList<DataPointConfiguration> dataPointConfigurations = dataPointResponse.getDataPointConfigurations();
 
         for (DataPointConfiguration dpt : dataPointConfigurations) {
             String nextOid = oid + "/" + dpt.getIndex();
 
-            if (dpt.getType() == 7) {
-                channelIds.putAll(getChannelIDs(nextOid));
+            // Type 7 are composite elements that contains additional sub elements and holds no data at all
+            if ("composite".equals(dpt.getValue())) {
+                channelConfigurations.putAll(getChannelConfigurations(nextOid));
             } else {
-                channelIds.put(nextOid, dpt.getUnit());
+                channelConfigurations.put(nextOid, dpt);
             }
         }
 
-        return channelIds;
+        return channelConfigurations;
+    }
+
+    // TODO: Add language as parameter or read language from configuration
+    public VariableIdentificators getVariableIdentificators() {
+        String language = "de";
+        String url = "http://" + configuration.hostname + "/res/xml/VarIdentTexte_" + language + ".xml";
+
+        try {
+            String response = httpClient.GET(url).getContentAsString();
+
+            JAXBContext jaxbContext;
+
+            try {
+                jaxbContext = JAXBContext.newInstance(VariableIdentificators.class);
+                Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+                VariableIdentificators variableIdentificators = (VariableIdentificators) jaxbUnmarshaller
+                        .unmarshal(new StringReader(response));
+
+                return variableIdentificators;
+            } catch (JAXBException e) {
+                logger.error(e.getMessage());
+            }
+
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            logger.error(e.getMessage());
+            logger.debug("Exception while getting VariableIdentificators '" + url + "'", e);
+        }
+
+        return new VariableIdentificators();
+    }
+
+    public void dispose() {
+        logger.debug("Will stop httpClient");
+
+        if (httpClient.isStarted()) {
+            try {
+                httpClient.stop();
+            } catch (Exception e) {
+                logger.debug("Running http client could not be stopped: ", e);
+            }
+        }
     }
 }

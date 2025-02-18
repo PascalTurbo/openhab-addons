@@ -1,14 +1,10 @@
 package org.openhab.binding.ochsnerweb2com.internal;
 
-import static org.openhab.binding.ochsnerweb2com.internal.OchsnerWeb2ComBindingConstants.CHANNEL_TYPE_UID_TESTI;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
-import javax.measure.Unit;
 
 import org.openhab.binding.ochsnerweb2com.internal.model.DataPointConfiguration;
 import org.openhab.binding.ochsnerweb2com.internal.model.DataPointResponse;
@@ -53,23 +49,31 @@ public class OchsnerWeb2ComThingHandler extends BaseThingHandler {
             getBridgeHandler().getConnection().getDataPointResponse("/1/2/1");
 
             // TODO Think about a better name
-            Map<String, Unit<?>> channelData = getBridgeHandler().getConnection().getChannelIDs("/1/2/1");
+            Map<String, DataPointConfiguration> channelData = getBridgeHandler().getConnection()
+                    .getChannelConfigurations("/1/2/1");
 
             // TODO only updateThing once
-            for (Map.Entry<String, Unit<?>> channelEntry : channelData.entrySet()) {
+            for (Map.Entry<String, DataPointConfiguration> channelEntry : channelData.entrySet()) {
                 String channelId = channelEntry.getKey();
-                Unit<?> channelUnit = channelEntry.getValue();
+                DataPointConfiguration dataPointConfiguration = channelEntry.getValue();
                 ChannelUID channelUID = new ChannelUID(getThing().getUID(), channelId.replace("/", "_"));
 
+                Map.Entry<Integer, Integer> variableGroupIdentifier = dataPointConfiguration
+                        .getVariableGroupIdentifier();
+                String label = getBridgeHandler().getVariableIdentificators().getVariableIdentifcationString(
+                        variableGroupIdentifier.getKey(), variableGroupIdentifier.getValue());
+
                 if (super.thing.getChannel(channelUID) == null) {
-
                     ThingBuilder thingBuilder = editThing();
+                    // TODO: AcceptedItemType muss je nach Channel unterschiedlich gesetzt werden
                     ChannelBuilder channelbuilder = ChannelBuilder.create(channelUID, "String")
-                            .withType(CHANNEL_TYPE_UID_TESTI).withLabel(channelId).withDescription("Some description");
+                            .withType(dataPointConfiguration.getChannelTypeUID()).withLabel(label)
+                            .withDescription("Some description");
 
-                    if (channelUnit != null) {
-                        channelbuilder.withAcceptedItemType(channelUnit.getName());
-                    }
+                    // TODO: Check if it's nescessary to distinguish between different UOMs or if "Number" is enough
+                    // if (channelTypeUID != null) {
+                    // channelbuilder.withAcceptedItemType(channelTypeUID.getAsString());
+                    // }
 
                     Channel channel = channelbuilder.build();
 
@@ -124,6 +128,7 @@ public class OchsnerWeb2ComThingHandler extends BaseThingHandler {
                 logger.info("Channel is linked: " + channel.getUID().toString());
                 String oid = getOidForChannel(channel);
 
+                // TODO: Handle dpr == null (Eigentlich schon vorher bei der Connection das sauber handeln)
                 DataPointResponse dpr = getBridgeHandler().getConnection().getDataPointResponse(oid);
                 ArrayList<DataPointConfiguration> dpcs = dpr.getDataPointConfigurations();
 
@@ -138,6 +143,8 @@ public class OchsnerWeb2ComThingHandler extends BaseThingHandler {
                 }
 
                 DataPointConfiguration dpc = dpcs.getFirst();
+
+                logger.info("Get Value " + dpc.getValueState() + "for oid " + oid);
 
                 updateState(channel.getUID(), dpc.getValueState());
             }

@@ -33,5 +33,6 @@ public class OchsnerWeb2ComBindingConstants {
     public static final ThingTypeUID THING_TYPE_OCHSNERGENERIC = new ThingTypeUID(BINDING_ID, "ochsner-generic");
 
     // List of all Channel ids
-    public static final ChannelTypeUID CHANNEL_TYPE_UID_TESTI = new ChannelTypeUID(BINDING_ID, "testi");
+    public static final ChannelTypeUID CHANNEL_TYPE_UID_STRING = new ChannelTypeUID(BINDING_ID, "testi");
+    public static final ChannelTypeUID CHANNEL_TYPE_UID_NUMBER = new ChannelTypeUID(BINDING_ID, "number");
 }
